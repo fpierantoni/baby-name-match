@@ -1504,6 +1504,11 @@
                             <p style={{fontSize: 14, color: '#78716c', marginTop: 4}}>
                                 Qual nome você prefere?
                             </p>
+                            
+                            {/* Barra de progresso - movida para o header para sempre estar visível */}
+                            <div className="progress-bar" style={{marginTop: 16, marginBottom: 0}}>
+                                <div className="progress-fill" style={{width: `${(batalhaIndex / totalBattles) * 100}%`}}></div>
+                            </div>
                         </div>
                         
                         <div className="battle-area" style={{position: 'relative'}}>
@@ -1535,10 +1540,6 @@
                             <div className="battle-option" onClick={() => handleVoto(nome2, nome1)}>
                                 <div className="battle-name">{nome2}</div>
                             </div>
-                        </div>
-
-                        <div className="progress-bar">
-                            <div className="progress-fill" style={{width: `${(batalhaIndex / totalBattles) * 100}%`}}></div>
                         </div>
                     </div>
                 );
