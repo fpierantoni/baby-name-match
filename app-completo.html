@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍼 Meu Nome É… - App Completo</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #fafaf9;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        #root { min-height: 100vh; }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .welcome-container {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+        /* Botão fixo na parte inferior - SEMPRE (mobile e desktop) */
+        .fixed-button-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fafaf9;
+            padding: 20px;
+            box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+        .fixed-button-inner {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        /* Espaço para o botão fixo não obstruir o conteúdo */
+        .content-with-fixed-button {
+            padding-bottom: 120px;
+        }
+        .welcome-content {
+            padding-bottom: 180px; /* Espaço extra para botão fixo */
+        }
+        @media (min-width: 768px) {
+            .welcome-content {
+                padding-bottom: 60px; /* Desktop não precisa tanto espaço */
+            }
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .icon-circle {
+            background: #1c1917;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 24px;
+        }
+        h1 { 
+            font-size: 32px;
+            color: #1c1917;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            font-size: 18px;
+            color: #78716c;
+        }
+        .section {
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1c1917;
+            margin-bottom: 16px;
+        }
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .bubble {
+            background: white;
+            border: 2px solid #e7e5e4;
+            border-radius: 999px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #1c1917;
+            transition: all 0.2s;
+        }
+        .bubble:hover {
+            border-color: #1c1917;
+        }
+        .bubble.selected {
+            background: #1c1917;
+            border-color: #1c1917;
+            color: white;
+        }
+        .input-group {
+            margin-bottom: 16px;
+        }
+        .input-label {
+            font-size: 14px;
+            color: #78716c;
+            margin-bottom: 8px;
+            display: block;
+        }
+        input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e7e5e4;
+            border-radius: 16px;
+            font-size: 16px;
+            background: white;
+            color: #1c1917;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #1c1917;
+        }
+        .btn-add-custom {
+            background: #1c1917;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+        .btn-add-custom:hover {
+            background: #292524;
+        }
+        .btn-primary {
+            width: 100%;
+            background: #1c1917;
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 18px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: auto;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: #292524;
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .badge {
+            display: inline-block;
+            background: #1c1917;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .name-item {
+            background: white;
+            border: 2px solid #e7e5e4;
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-remove {
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .battle-screen {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 0;
+        }
+        .battle-header {
+            padding: 20px;
+            text-align: center;
+            background: white;
+            border-bottom: 2px solid #e7e5e4;
+        }
+        .battle-area {
+            flex: 1;
+            display: flex;
+            position: relative;
+        }
+        .battle-option {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: white;
+            transition: background 0.2s;
+            padding: 40px 20px;
+        }
+        .battle-option:hover {
+            background: #f5f5f4;
+        }
+        .battle-option:active {
+            background: #e7e5e4;
+        }
+        .battle-option:first-child {
+            border-right: 2px solid #e7e5e4;
+        }
+        
+        /* Layout horizontal no mobile */
+        @media (max-width: 767px) {
+            .battle-area {
+                flex-direction: column;
+            }
+            .battle-option:first-child {
+                border-right: none;
+                border-bottom: 2px solid #e7e5e4;
+            }
+        }
+        .battle-name {
+            font-size: 36px;
+            font-weight: bold;
+            color: #1c1917;
+            text-align: center;
+        }
+        .battle-vs {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1c1917;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 10;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .battle-timer-divider {
+            position: absolute;
+            z-index: 5;
+        }
+        /* Desktop: barra vertical sobre a linha divisória */
+        @media (min-width: 768px) {
+            .battle-timer-divider {
+                width: 4px;
+                height: 100%;
+                top: 0;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+        /* Mobile: barra horizontal sobre a linha divisória */
+        @media (max-width: 767px) {
+            .battle-timer-divider {
+                height: 4px;
+                width: 100%;
+                top: 50%;
+                left: 0;
+                transform: translateY(-50%);
+            }
+        }
+        .progress-bar {
+            height: 8px;
+            background: #e7e5e4;
+            border-radius: 999px;
+            overflow: hidden;
+            margin: 20px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #1c1917;
+            transition: width 0.3s;
+        }
+        .result-item {
+            background: white;
+            border: 2px solid #e7e5e4;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .result-rank {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1c1917;
+            min-width: 40px;
+        }
+        .medal {
+            font-size: 32px;
+        }
+        .result-info {
+            flex: 1;
+        }
+        .result-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1c1917;
+            margin-bottom: 4px;
+        }
+        .result-score {
+            font-size: 14px;
+            color: #78716c;
+        }
+        .podium {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            align-items: flex-end;
+            justify-content: center;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .podium-item {
+            flex: 1;
+            background: white;
+            border-radius: 16px 16px 0 0;
+            border: 2px solid #e7e5e4;
+            padding: 16px 8px;
+            text-align: center;
+        }
+        .podium-1 { 
+            background: #fef3c7;
+            border-color: #fbbf24;
+            order: 2;
+            padding-bottom: 40px;
+        }
+        .podium-2 { 
+            background: #f1f5f9;
+            border-color: #94a3b8;
+            order: 1;
+            padding-bottom: 20px;
+        }
+        .podium-3 { 
+            background: #fed7aa;
+            border-color: #d97706;
+            order: 3;
+            padding-bottom: 10px;
+        }
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 120px; /* Espaço para o botão fixo */
+        }
+        .scrollable {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // Dados mockados
+        const categorias = [
+            { id: 'classicos', nome: 'Clássicos', emoji: '👑' },
+            { id: 'modernos', nome: 'Modernos', emoji: '🚀' },
+            { id: 'curtos', nome: 'Curtos', emoji: '✨' },
+            { id: 'biblicos', nome: 'Bíblicos', emoji: '📖' },
+            { id: 'natureza', nome: 'Natureza', emoji: '🌿' },
+            { id: 'internacionais', nome: 'Internacionais', emoji: '🌍' },
+            { id: 'compostos', nome: 'Compostos', emoji: '💫' },
+            { id: 'raros', nome: 'Raros', emoji: '💎' },
+            { id: 'fortes', nome: 'Fortes', emoji: '⚡' },
+            { id: 'delicados', nome: 'Delicados', emoji: '🌸' },
+            { id: 'vintage', nome: 'Vintage', emoji: '🕰️' },
+            { id: 'literarios', nome: 'Literários', emoji: '📚' },
+            { id: 'mitologicos', nome: 'Mitológicos', emoji: '🏛️' },
+            { id: 'realeza', nome: 'Realeza', emoji: '👸' },
+            { id: 'musicais', nome: 'Musicais', emoji: '🎵' },
+            { id: 'flores', nome: 'Flores', emoji: '🌺' },
+            { id: 'celestiais', nome: 'Celestiais', emoji: '⭐' },
+            { id: 'elegantes', nome: 'Elegantes', emoji: '💅' },
+            { id: 'romanticos', nome: 'Românticos', emoji: '💕' },
+            { id: 'cores', nome: 'Cores', emoji: '🎨' },
+            { id: 'pedras', nome: 'Pedras', emoji: '💍' },
+            { id: 'lugares', nome: 'Lugares', emoji: '🗺️' },
+            { id: 'virtudes', nome: 'Virtudes', emoji: '🌟' },
+            { id: 'estacoes', nome: 'Estações', emoji: '🍂' },
+            { id: 'elementos', nome: 'Elementos', emoji: '🔥' },
+            { id: 'animais', nome: 'Animais', emoji: '🦁' },
+            { id: 'arte', nome: 'Arte', emoji: '🎭' },
+            { id: 'exoticos', nome: 'Exóticos', emoji: '🌴' },
+            { id: 'italianos', nome: 'Italianos', emoji: '🇮🇹' },
+            { id: 'franceses', nome: 'Franceses', emoji: '🇫🇷' },
+            { id: 'brasileiros', nome: 'Brasileiros', emoji: '🇧🇷' },
+            { id: 'escandinavos', nome: 'Escandinavos', emoji: '❄️' },
+            { id: 'arabes', nome: 'Árabes', emoji: '🕌' },
+            { id: 'suaves', nome: 'Suaves', emoji: '🌊' },
+            { id: 'energicos', nome: 'Enérgicos', emoji: '⚡' },
+            { id: 'unissex', nome: 'Unissex', emoji: '⚖️' },
+            { id: 'originarios', nome: 'Originários', emoji: '🪶' },
+        ];
+
+        // Banco de nomes com metadados (cada nome pode ter múltiplas categorias)
+        const bancoDeNomes = [
+            // Meninos
+            { nome: 'Miguel', genero: 'boy', categorias: ['classicos', 'biblicos', 'fortes', 'internacionais'] },
+            { nome: 'Arthur', genero: 'boy', categorias: ['classicos', 'realeza', 'fortes', 'internacionais'] },
+            { nome: 'Heitor', genero: 'boy', categorias: ['classicos', 'mitologicos', 'fortes'] },
+            { nome: 'Bernardo', genero: 'boy', categorias: ['classicos', 'elegantes'] },
+            { nome: 'Theo', genero: 'boy', categorias: ['modernos', 'curtos', 'internacionais'] },
+            { nome: 'Davi', genero: 'boy', categorias: ['biblicos', 'curtos', 'classicos', 'internacionais'] },
+            { nome: 'Gabriel', genero: 'boy', categorias: ['biblicos', 'classicos', 'fortes', 'internacionais'] },
+            { nome: 'Samuel', genero: 'boy', categorias: ['biblicos', 'classicos', 'internacionais'] },
+            { nome: 'Pedro', genero: 'boy', categorias: ['biblicos', 'curtos', 'classicos', 'internacionais'] },
+            { nome: 'João', genero: 'boy', categorias: ['biblicos', 'curtos', 'classicos', 'internacionais'] },
+            { nome: 'Matheus', genero: 'boy', categorias: ['biblicos', 'classicos', 'internacionais'] },
+            { nome: 'Lucas', genero: 'boy', categorias: ['biblicos', 'classicos', 'internacionais'] },
+            { nome: 'Rafael', genero: 'boy', categorias: ['biblicos', 'classicos', 'elegantes', 'internacionais'] },
+            { nome: 'Daniel', genero: 'boy', categorias: ['biblicos', 'classicos', 'internacionais', 'fortes'] },
+            { nome: 'Felipe', genero: 'boy', categorias: ['classicos', 'realeza', 'internacionais'] },
+            { nome: 'Lorenzo', genero: 'boy', categorias: ['modernos', 'internacionais', 'elegantes'] },
+            { nome: 'Benício', genero: 'boy', categorias: ['modernos', 'raros'] },
+            { nome: 'Gael', genero: 'boy', categorias: ['modernos', 'curtos', 'internacionais'] },
+            { nome: 'Enzo', genero: 'boy', categorias: ['modernos', 'curtos', 'internacionais'] },
+            { nome: 'Noah', genero: 'boy', categorias: ['modernos', 'curtos', 'biblicos', 'internacionais'] },
+            { nome: 'Liam', genero: 'boy', categorias: ['modernos', 'curtos', 'internacionais'] },
+            { nome: 'Oliver', genero: 'boy', categorias: ['internacionais', 'natureza', 'modernos'] },
+            { nome: 'Levi', genero: 'boy', categorias: ['biblicos', 'curtos', 'modernos', 'internacionais'] },
+            { nome: 'Benjamin', genero: 'boy', categorias: ['biblicos', 'internacionais', 'classicos'] },
+            { nome: 'Henry', genero: 'boy', categorias: ['internacionais', 'realeza'] },
+            { nome: 'Antônio', genero: 'boy', categorias: ['classicos', 'vintage', 'internacionais'] },
+            { nome: 'Francisco', genero: 'boy', categorias: ['classicos', 'vintage', 'internacionais'] },
+            { nome: 'Joaquim', genero: 'boy', categorias: ['vintage', 'classicos', 'internacionais'] },
+            { nome: 'Augusto', genero: 'boy', categorias: ['vintage', 'realeza', 'fortes', 'internacionais'] },
+            { nome: 'Vicente', genero: 'boy', categorias: ['vintage', 'classicos', 'internacionais'] },
+            { nome: 'Murilo', genero: 'boy', categorias: ['classicos', 'brasileiros'] },
+            { nome: 'Lucca', genero: 'boy', categorias: ['modernos', 'curtos', 'italianos'] },
+            { nome: 'Caio', genero: 'boy', categorias: ['curtos', 'fortes', 'brasileiros'] },
+            { nome: 'Isaac', genero: 'boy', categorias: ['biblicos', 'internacionais', 'classicos'] },
+            { nome: 'Caleb', genero: 'boy', categorias: ['biblicos', 'modernos', 'fortes', 'internacionais'] },
+            { nome: 'Elias', genero: 'boy', categorias: ['biblicos', 'classicos', 'internacionais'] },
+            { nome: 'Apollo', genero: 'boy', categorias: ['mitologicos', 'raros', 'fortes'] },
+            { nome: 'Atlas', genero: 'boy', categorias: ['mitologicos', 'modernos', 'fortes'] },
+            { nome: 'Orion', genero: 'boy', categorias: ['mitologicos', 'celestiais', 'raros'] },
+            { nome: 'Dante', genero: 'boy', categorias: ['italianos', 'arte', 'literarios', 'fortes'] },
+            { nome: 'Romeo', genero: 'boy', categorias: ['literarios', 'romanticos', 'internacionais'] },
+            { nome: 'Leonardo', genero: 'boy', categorias: ['classicos', 'elegantes', 'arte', 'italianos', 'internacionais'] },
+            { nome: 'Valentim', genero: 'boy', categorias: ['romanticos', 'vintage'] },
+            { nome: 'Bento', genero: 'boy', categorias: ['modernos', 'curtos'] },
+            { nome: 'Otávio', genero: 'boy', categorias: ['vintage', 'elegantes'] },
+            { nome: 'Ígor', genero: 'boy', categorias: ['internacionais', 'fortes'] },
+            { nome: 'Bruno', genero: 'boy', categorias: ['classicos', 'fortes', 'internacionais'] },
+            { nome: 'Yuri', genero: 'boy', categorias: ['internacionais', 'curtos', 'modernos'] },
+            { nome: 'Kaique', genero: 'boy', categorias: ['modernos', 'raros', 'brasileiros'] },
+            { nome: 'Anthony', genero: 'boy', categorias: ['internacionais', 'modernos', 'classicos'] },
+            { nome: 'Asher', genero: 'boy', categorias: ['biblicos', 'modernos', 'internacionais'] },
+            { nome: 'Jasper', genero: 'boy', categorias: ['pedras', 'internacionais', 'vintage'] },
+            { nome: 'Leon', genero: 'boy', categorias: ['animais', 'curtos', 'fortes', 'internacionais'] },
+            { nome: 'Rio', genero: 'boy', categorias: ['natureza', 'curtos', 'modernos', 'lugares'] },
+            { nome: 'Felix', genero: 'boy', categorias: ['virtudes', 'internacionais', 'vintage'] },
+            { nome: 'Silas', genero: 'boy', categorias: ['biblicos', 'vintage', 'internacionais'] },
+            { nome: 'Mateo', genero: 'boy', categorias: ['biblicos', 'internacionais', 'modernos'] },
+            { nome: 'Arlo', genero: 'boy', categorias: ['modernos', 'curtos', 'raros', 'suaves'] },
+            { nome: 'Luca', genero: 'boy', categorias: ['italianos', 'curtos', 'modernos', 'internacionais'] },
+            { nome: 'Gio', genero: 'boy', categorias: ['italianos', 'curtos', 'modernos'] },
+            { nome: 'Marco', genero: 'boy', categorias: ['italianos', 'classicos', 'internacionais'] },
+            { nome: 'Pierre', genero: 'boy', categorias: ['franceses', 'elegantes', 'classicos', 'internacionais'] },
+            { nome: 'Louis', genero: 'boy', categorias: ['franceses', 'realeza', 'elegantes', 'internacionais'] },
+            { nome: 'Raul', genero: 'boy', categorias: ['classicos', 'fortes', 'curtos'] },
+            { nome: 'Kenzo', genero: 'boy', categorias: ['exoticos', 'modernos', 'raros'] },
+            { nome: 'Keanu', genero: 'boy', categorias: ['exoticos', 'modernos', 'raros'] },
+            { nome: 'Thor', genero: 'boy', categorias: ['escandinavos', 'mitologicos', 'fortes'] },
+            { nome: 'Olaf', genero: 'boy', categorias: ['escandinavos', 'vintage'] },
+            { nome: 'Omar', genero: 'boy', categorias: ['arabes', 'curtos', 'fortes'] },
+            { nome: 'Malik', genero: 'boy', categorias: ['arabes', 'fortes', 'raros'] },
+            { nome: 'Sol', genero: 'boy', categorias: ['elementos', 'curtos', 'natureza'] },
+            { nome: 'Max', genero: 'boy', categorias: ['energicos', 'curtos', 'modernos', 'fortes'] },
+            { nome: 'Rex', genero: 'boy', categorias: ['energicos', 'curtos', 'fortes', 'raros'] },
+            { nome: 'Axel', genero: 'boy', categorias: ['energicos', 'modernos', 'fortes'] },
+            { nome: 'Lionel', genero: 'boy', categorias: ['animais', 'elegantes', 'internacionais'] },
+            { nome: 'Michelangelo', genero: 'boy', categorias: ['arte', 'italianos', 'raros'] },
+            { nome: 'André', genero: 'boy', categorias: ['classicos', 'curtos', 'internacionais'] },
+            { nome: 'Carlos', genero: 'boy', categorias: ['classicos', 'realeza', 'internacionais'] },
+            { nome: 'Eduardo', genero: 'boy', categorias: ['classicos', 'realeza', 'internacionais'] },
+            { nome: 'Guilherme', genero: 'boy', categorias: ['classicos', 'realeza', 'internacionais'] },
+            { nome: 'Thiago', genero: 'boy', categorias: ['biblicos', 'classicos', 'internacionais'] },
+            { nome: 'Rodrigo', genero: 'boy', categorias: ['classicos', 'fortes'] },
+            { nome: 'Fernando', genero: 'boy', categorias: ['classicos', 'elegantes'] },
+            { nome: 'Marcos', genero: 'boy', categorias: ['biblicos', 'classicos', 'internacionais'] },
+            { nome: 'José', genero: 'boy', categorias: ['biblicos', 'classicos', 'internacionais'] },
+            { nome: 'Gustavo', genero: 'boy', categorias: ['classicos', 'fortes'] },
+            { nome: 'Emanuel', genero: 'boy', categorias: ['biblicos', 'elegantes', 'internacionais'] },
+            { nome: 'Nathan', genero: 'boy', categorias: ['biblicos', 'modernos', 'internacionais'] },
+            { nome: 'Ethan', genero: 'boy', categorias: ['biblicos', 'modernos', 'internacionais'] },
+            { nome: 'Sebastian', genero: 'boy', categorias: ['classicos', 'elegantes', 'internacionais'] },
+            { nome: 'Erick', genero: 'boy', categorias: ['escandinavos', 'fortes', 'internacionais'] },
+            { nome: 'Nicolas', genero: 'boy', categorias: ['classicos', 'internacionais', 'elegantes'] },
+            { nome: 'Vitor', genero: 'boy', categorias: ['classicos', 'fortes', 'virtudes'] },
+            
+            // Meninas
+            { nome: 'Alice', genero: 'girl', categorias: ['classicos', 'literarios', 'delicados', 'internacionais'] },
+            { nome: 'Sophia', genero: 'girl', categorias: ['classicos', 'internacionais', 'elegantes'] },
+            { nome: 'Helena', genero: 'girl', categorias: ['classicos', 'elegantes', 'internacionais'] },
+            { nome: 'Laura', genero: 'girl', categorias: ['classicos', 'delicados', 'internacionais'] },
+            { nome: 'Cecília', genero: 'girl', categorias: ['classicos', 'elegantes', 'vintage', 'internacionais'] },
+            { nome: 'Valentina', genero: 'girl', categorias: ['modernos', 'elegantes', 'internacionais'] },
+            { nome: 'Isabela', genero: 'girl', categorias: ['classicos', 'elegantes', 'realeza', 'internacionais'] },
+            { nome: 'Maria', genero: 'girl', categorias: ['classicos', 'biblicos', 'internacionais'] },
+            { nome: 'Ana', genero: 'girl', categorias: ['classicos', 'curtos', 'biblicos', 'internacionais'] },
+            { nome: 'Júlia', genero: 'girl', categorias: ['classicos', 'elegantes', 'internacionais'] },
+            { nome: 'Beatriz', genero: 'girl', categorias: ['classicos', 'vintage', 'elegantes', 'internacionais'] },
+            { nome: 'Manuela', genero: 'girl', categorias: ['classicos', 'delicados', 'internacionais'] },
+            { nome: 'Luna', genero: 'girl', categorias: ['modernos', 'curtos', 'celestiais', 'elementos', 'suaves'] },
+            { nome: 'Maitê', genero: 'girl', categorias: ['modernos', 'raros'] },
+            { nome: 'Aurora', genero: 'girl', categorias: ['natureza', 'celestiais', 'mitologicos', 'delicados', 'elementos', 'suaves'] },
+            { nome: 'Lívia', genero: 'girl', categorias: ['modernos', 'elegantes', 'classicos', 'internacionais'] },
+            { nome: 'Lara', genero: 'girl', categorias: ['curtos', 'modernos'] },
+            { nome: 'Emma', genero: 'girl', categorias: ['internacionais', 'curtos', 'modernos'] },
+            { nome: 'Olívia', genero: 'girl', categorias: ['internacionais', 'natureza', 'elegantes'] },
+            { nome: 'Mia', genero: 'girl', categorias: ['internacionais', 'curtos', 'modernos', 'suaves'] },
+            { nome: 'Clara', genero: 'girl', categorias: ['classicos', 'delicados', 'internacionais'] },
+            { nome: 'Giovanna', genero: 'girl', categorias: ['classicos', 'internacionais'] },
+            { nome: 'Sara', genero: 'girl', categorias: ['biblicos', 'curtos', 'classicos', 'internacionais'] },
+            { nome: 'Esther', genero: 'girl', categorias: ['biblicos', 'vintage', 'elegantes', 'internacionais'] },
+            { nome: 'Rebeca', genero: 'girl', categorias: ['biblicos', 'classicos', 'internacionais'] },
+            { nome: 'Raquel', genero: 'girl', categorias: ['biblicos', 'classicos', 'internacionais'] },
+            { nome: 'Míriam', genero: 'girl', categorias: ['biblicos', 'vintage', 'internacionais'] },
+            { nome: 'Deborah', genero: 'girl', categorias: ['biblicos', 'elegantes', 'internacionais'] },
+            { nome: 'Flora', genero: 'girl', categorias: ['natureza', 'flores', 'vintage', 'delicados'] },
+            { nome: 'Iris', genero: 'girl', categorias: ['natureza', 'flores', 'curtos', 'mitologicos'] },
+            { nome: 'Jade', genero: 'girl', categorias: ['natureza', 'curtos', 'modernos', 'pedras', 'cores'] },
+            { nome: 'Ivy', genero: 'girl', categorias: ['natureza', 'curtos', 'internacionais'] },
+            { nome: 'Dália', genero: 'girl', categorias: ['natureza', 'flores', 'raros'] },
+            { nome: 'Violeta', genero: 'girl', categorias: ['natureza', 'flores', 'vintage', 'cores'] },
+            { nome: 'Rosa', genero: 'girl', categorias: ['natureza', 'flores', 'curtos', 'classicos', 'cores'] },
+            { nome: 'Lírio', genero: 'girl', categorias: ['natureza', 'flores', 'raros'] },
+            { nome: 'Margarida', genero: 'girl', categorias: ['natureza', 'flores', 'vintage'] },
+            { nome: 'Jasmim', genero: 'girl', categorias: ['natureza', 'flores', 'raros'] },
+            { nome: 'Stella', genero: 'girl', categorias: ['celestiais', 'internacionais', 'elegantes'] },
+            { nome: 'Celeste', genero: 'girl', categorias: ['celestiais', 'raros', 'delicados'] },
+            { nome: 'Nova', genero: 'girl', categorias: ['celestiais', 'modernos', 'curtos', 'raros'] },
+            { nome: 'Athena', genero: 'girl', categorias: ['mitologicos', 'fortes', 'internacionais'] },
+            { nome: 'Diana', genero: 'girl', categorias: ['mitologicos', 'realeza', 'elegantes'] },
+            { nome: 'Penélope', genero: 'girl', categorias: ['mitologicos', 'literarios', 'elegantes'] },
+            { nome: 'Selene', genero: 'girl', categorias: ['mitologicos', 'celestiais', 'raros'] },
+            { nome: 'Maya', genero: 'girl', categorias: ['mitologicos', 'internacionais', 'curtos'] },
+            { nome: 'Gaia', genero: 'girl', categorias: ['mitologicos', 'curtos', 'natureza'] },
+            { nome: 'Julieta', genero: 'girl', categorias: ['literarios', 'romanticos', 'vintage', 'internacionais'] },
+            { nome: 'Clarice', genero: 'girl', categorias: ['literarios', 'elegantes', 'vintage'] },
+            { nome: 'Antônia', genero: 'girl', categorias: ['vintage', 'classicos'] },
+            { nome: 'Adelaide', genero: 'girl', categorias: ['vintage', 'realeza', 'elegantes'] },
+            { nome: 'Teodora', genero: 'girl', categorias: ['vintage', 'raros', 'elegantes'] },
+            { nome: 'Amélia', genero: 'girl', categorias: ['vintage', 'delicados'] },
+            { nome: 'Catarina', genero: 'girl', categorias: ['classicos', 'realeza'] },
+            { nome: 'Vitória', genero: 'girl', categorias: ['realeza', 'fortes'] },
+            { nome: 'Isabella', genero: 'girl', categorias: ['realeza', 'internacionais', 'elegantes'] },
+            { nome: 'Charlotte', genero: 'girl', categorias: ['realeza', 'internacionais', 'elegantes'] },
+            { nome: 'Pérola', genero: 'girl', categorias: ['raros', 'delicados', 'elegantes', 'pedras'] },
+            { nome: 'Safira', genero: 'girl', categorias: ['raros', 'elegantes', 'pedras', 'cores'] },
+            { nome: 'Ametista', genero: 'girl', categorias: ['raros', 'elegantes', 'pedras', 'cores'] },
+            { nome: 'Melody', genero: 'girl', categorias: ['musicais', 'internacionais', 'modernos'] },
+            { nome: 'Aria', genero: 'girl', categorias: ['musicais', 'curtos', 'modernos'] },
+            { nome: 'Lyra', genero: 'girl', categorias: ['musicais', 'celestiais', 'raros'] },
+            { nome: 'Harmonia', genero: 'girl', categorias: ['musicais', 'mitologicos', 'raros'] },
+            { nome: 'Rubi', genero: 'girl', categorias: ['cores', 'pedras', 'curtos', 'raros'] },
+            { nome: 'Coral', genero: 'girl', categorias: ['cores', 'natureza', 'raros'] },
+            { nome: 'Âmbar', genero: 'girl', categorias: ['cores', 'pedras', 'raros'] },
+            { nome: 'Hazel', genero: 'girl', categorias: ['cores', 'natureza', 'internacionais'] },
+            { nome: 'Willow', genero: 'girl', categorias: ['natureza', 'delicados', 'internacionais'] },
+            { nome: 'Zara', genero: 'girl', categorias: ['modernos', 'curtos', 'exoticos'] },
+            { nome: 'Cleo', genero: 'girl', categorias: ['mitologicos', 'curtos', 'raros'] },
+            { nome: 'Mabel', genero: 'girl', categorias: ['vintage', 'delicados', 'raros'] },
+            { nome: 'Esperança', genero: 'girl', categorias: ['virtudes', 'delicados'] },
+            { nome: 'Graça', genero: 'girl', categorias: ['virtudes', 'delicados', 'curtos'] },
+            { nome: 'Fé', genero: 'girl', categorias: ['virtudes', 'curtos', 'delicados'] },
+            { nome: 'Skye', genero: 'girl', categorias: ['celestiais', 'curtos', 'raros', 'internacionais'] },
+            { nome: 'Summer', genero: 'girl', categorias: ['estacoes', 'delicados', 'internacionais'] },
+            { nome: 'Autumn', genero: 'girl', categorias: ['estacoes', 'raros', 'internacionais'] },
+            { nome: 'India', genero: 'girl', categorias: ['lugares', 'raros', 'exoticos'] },
+            { nome: 'Paloma', genero: 'girl', categorias: ['animais', 'delicados', 'elegantes'] },
+            { nome: 'Bianca', genero: 'girl', categorias: ['italianos', 'elegantes', 'classicos'] },
+            { nome: 'Chiara', genero: 'girl', categorias: ['italianos', 'delicados', 'modernos'] },
+            { nome: 'Sophie', genero: 'girl', categorias: ['franceses', 'elegantes', 'internacionais'] },
+            { nome: 'Margot', genero: 'girl', categorias: ['franceses', 'vintage', 'elegantes'] },
+            { nome: 'Yara', genero: 'girl', categorias: ['brasileiros', 'curtos', 'exoticos', 'originarios', 'mitologicos'] },
+            { nome: 'Dandara', genero: 'girl', categorias: ['brasileiros', 'fortes', 'raros', 'originarios'] },
+            { nome: 'Iracema', genero: 'girl', categorias: ['brasileiros', 'literarios', 'vintage', 'originarios'] },
+            { nome: 'Freya', genero: 'girl', categorias: ['escandinavos', 'mitologicos', 'fortes'] },
+            { nome: 'Astrid', genero: 'girl', categorias: ['escandinavos', 'fortes', 'raros'] },
+            { nome: 'Yasmin', genero: 'girl', categorias: ['arabes', 'flores', 'delicados'] },
+            { nome: 'Laila', genero: 'girl', categorias: ['arabes', 'suaves', 'delicados'] },
+            { nome: 'Terra', genero: 'girl', categorias: ['elementos', 'natureza', 'fortes'] },
+            { nome: 'Mar', genero: 'girl', categorias: ['elementos', 'natureza', 'curtos'] },
+            { nome: 'Ella', genero: 'girl', categorias: ['suaves', 'curtos', 'delicados', 'internacionais'] },
+            { nome: 'Zoe', genero: 'girl', categorias: ['energicos', 'curtos', 'modernos', 'internacionais'] },
+            { nome: 'Frida', genero: 'girl', categorias: ['arte', 'fortes', 'raros'] },
+            { nome: 'Ursa', genero: 'girl', categorias: ['animais', 'celestiais', 'raros', 'fortes'] },
+            { nome: 'Sabrina', genero: 'girl', categorias: ['classicos', 'elegantes', 'modernos', 'internacionais'] },
+            { nome: 'Carolina', genero: 'girl', categorias: ['classicos', 'elegantes', 'internacionais'] },
+            { nome: 'Fernanda', genero: 'girl', categorias: ['classicos', 'elegantes'] },
+            { nome: 'Gabriela', genero: 'girl', categorias: ['biblicos', 'classicos', 'elegantes', 'internacionais'] },
+            { nome: 'Marcela', genero: 'girl', categorias: ['classicos', 'elegantes'] },
+            { nome: 'Natália', genero: 'girl', categorias: ['classicos', 'elegantes', 'internacionais'] },
+            { nome: 'Rafaela', genero: 'girl', categorias: ['biblicos', 'classicos', 'elegantes', 'internacionais'] },
+            { nome: 'Camila', genero: 'girl', categorias: ['classicos', 'elegantes', 'internacionais'] },
+            { nome: 'Letícia', genero: 'girl', categorias: ['classicos', 'elegantes', 'internacionais', 'virtudes'] },
+            { nome: 'Lorena', genero: 'girl', categorias: ['classicos', 'elegantes', 'internacionais'] },
+            { nome: 'Mariana', genero: 'girl', categorias: ['classicos', 'elegantes', 'compostos', 'internacionais'] },
+            { nome: 'Nicole', genero: 'girl', categorias: ['modernos', 'internacionais', 'elegantes'] },
+            { nome: 'Amanda', genero: 'girl', categorias: ['classicos', 'virtudes', 'internacionais'] },
+            { nome: 'Melissa', genero: 'girl', categorias: ['natureza', 'elegantes', 'internacionais'] },
+            { nome: 'Bruna', genero: 'girl', categorias: ['modernos', 'fortes'] },
+            { nome: 'Eduarda', genero: 'girl', categorias: ['classicos', 'realeza'] },
+            { nome: 'Luana', genero: 'girl', categorias: ['brasileiros', 'suaves', 'delicados'] },
+            { nome: 'Mirella', genero: 'girl', categorias: ['elegantes', 'raros', 'delicados'] },
+            { nome: 'Pietra', genero: 'girl', categorias: ['modernos', 'pedras', 'fortes'] },
+            { nome: 'Elisa', genero: 'girl', categorias: ['biblicos', 'elegantes', 'classicos', 'internacionais'] },
+            { nome: 'Nina', genero: 'girl', categorias: ['curtos', 'modernos', 'suaves', 'internacionais'] },
+            { nome: 'Liz', genero: 'girl', categorias: ['curtos', 'modernos', 'biblicos', 'internacionais'] },
+            
+            // Nomes Unissex (aparecem tanto para menino quanto menina)
+            { nome: 'Alex', genero: 'boy', categorias: ['unissex', 'curtos', 'modernos', 'internacionais'] },
+            { nome: 'Alex', genero: 'girl', categorias: ['unissex', 'curtos', 'modernos', 'internacionais'] },
+            { nome: 'Ariel', genero: 'boy', categorias: ['unissex', 'biblicos', 'internacionais'] },
+            { nome: 'Ariel', genero: 'girl', categorias: ['unissex', 'biblicos', 'internacionais'] },
+            { nome: 'Morgan', genero: 'boy', categorias: ['unissex', 'internacionais', 'raros'] },
+            { nome: 'Morgan', genero: 'girl', categorias: ['unissex', 'internacionais', 'raros'] },
+            { nome: 'Taylor', genero: 'boy', categorias: ['unissex', 'internacionais', 'modernos'] },
+            { nome: 'Taylor', genero: 'girl', categorias: ['unissex', 'internacionais', 'modernos'] },
+            { nome: 'Jordan', genero: 'boy', categorias: ['unissex', 'internacionais', 'modernos'] },
+            { nome: 'Jordan', genero: 'girl', categorias: ['unissex', 'internacionais', 'modernos'] },
+            { nome: 'Sam', genero: 'boy', categorias: ['unissex', 'curtos', 'internacionais'] },
+            { nome: 'Sam', genero: 'girl', categorias: ['unissex', 'curtos', 'internacionais'] },
+            { nome: 'Angel', genero: 'boy', categorias: ['unissex', 'celestiais', 'internacionais'] },
+            { nome: 'Angel', genero: 'girl', categorias: ['unissex', 'celestiais', 'internacionais'] },
+            { nome: 'Riley', genero: 'boy', categorias: ['unissex', 'modernos', 'internacionais'] },
+            { nome: 'Riley', genero: 'girl', categorias: ['unissex', 'modernos', 'internacionais'] },
+            { nome: 'Dominique', genero: 'boy', categorias: ['unissex', 'elegantes', 'franceses', 'internacionais'] },
+            { nome: 'Dominique', genero: 'girl', categorias: ['unissex', 'elegantes', 'franceses', 'internacionais'] },
+            { nome: 'Rafa', genero: 'boy', categorias: ['unissex', 'curtos', 'modernos', 'brasileiros'] },
+            { nome: 'Rafa', genero: 'girl', categorias: ['unissex', 'curtos', 'modernos', 'brasileiros'] },
+            { nome: 'Sky', genero: 'boy', categorias: ['unissex', 'curtos', 'celestiais', 'natureza', 'internacionais'] },
+            { nome: 'Sky', genero: 'girl', categorias: ['unissex', 'curtos', 'celestiais', 'natureza', 'internacionais'] },
+            { nome: 'Dakota', genero: 'boy', categorias: ['unissex', 'lugares', 'raros', 'internacionais'] },
+            { nome: 'Dakota', genero: 'girl', categorias: ['unissex', 'lugares', 'raros', 'internacionais'] },
+            { nome: 'Paris', genero: 'boy', categorias: ['unissex', 'lugares', 'elegantes', 'internacionais'] },
+            { nome: 'Paris', genero: 'girl', categorias: ['unissex', 'lugares', 'elegantes', 'internacionais'] },
+            { nome: 'Eden', genero: 'boy', categorias: ['unissex', 'biblicos', 'natureza', 'internacionais'] },
+            { nome: 'Eden', genero: 'girl', categorias: ['unissex', 'biblicos', 'natureza', 'internacionais'] },
+            
+            // Nomes Originários (Indígenas Brasileiros)
+            { nome: 'Cauã', genero: 'boy', categorias: ['originarios', 'brasileiros', 'fortes', 'raros'] },
+            { nome: 'Raoni', genero: 'boy', categorias: ['originarios', 'brasileiros', 'fortes', 'raros'] },
+            { nome: 'Rudá', genero: 'boy', categorias: ['originarios', 'brasileiros', 'raros'] },
+            { nome: 'Kauê', genero: 'boy', categorias: ['originarios', 'brasileiros', 'raros'] },
+            { nome: 'Ubirajara', genero: 'boy', categorias: ['originarios', 'brasileiros', 'raros', 'vintage'] },
+            { nome: 'Tupã', genero: 'boy', categorias: ['originarios', 'brasileiros', 'fortes', 'raros'] },
+            { nome: 'Ubiratan', genero: 'boy', categorias: ['originarios', 'brasileiros', 'raros', 'fortes'] },
+            { nome: 'Moacir', genero: 'boy', categorias: ['originarios', 'brasileiros', 'raros'] },
+            { nome: 'Guaraci', genero: 'boy', categorias: ['originarios', 'brasileiros', 'raros', 'celestiais'] },
+            { nome: 'Jurandir', genero: 'boy', categorias: ['originarios', 'brasileiros', 'vintage'] },
+            { nome: 'Jaci', genero: 'boy', categorias: ['originarios', 'brasileiros', 'curtos', 'raros', 'celestiais'] },
+            { nome: 'Ayla', genero: 'girl', categorias: ['originarios', 'brasileiros', 'curtos', 'suaves', 'modernos', 'exoticos'] },
+            { nome: 'Iara', genero: 'girl', categorias: ['originarios', 'brasileiros', 'curtos', 'mitologicos'] },
+            { nome: 'Moema', genero: 'girl', categorias: ['originarios', 'brasileiros', 'raros', 'delicados'] },
+            { nome: 'Tainá', genero: 'girl', categorias: ['originarios', 'brasileiros', 'raros', 'delicados'] },
+            { nome: 'Jurema', genero: 'girl', categorias: ['originarios', 'brasileiros', 'natureza', 'vintage'] },
+            { nome: 'Potira', genero: 'girl', categorias: ['originarios', 'brasileiros', 'raros', 'flores'] },
+            { nome: 'Juçara', genero: 'girl', categorias: ['originarios', 'brasileiros', 'natureza', 'raros'] },
+            { nome: 'Maiara', genero: 'girl', categorias: ['originarios', 'brasileiros', 'modernos'] },
+            { nome: 'Jaci', genero: 'girl', categorias: ['originarios', 'brasileiros', 'curtos', 'raros', 'celestiais'] },
+            { nome: 'Araci', genero: 'girl', categorias: ['originarios', 'brasileiros', 'raros', 'vintage'] },
+            { nome: 'Uiara', genero: 'girl', categorias: ['originarios', 'brasileiros', 'raros', 'mitologicos'] },
+        ];
+
+        // Função para obter nomes filtrados por categorias selecionadas
+        const obterNomesPorCategorias = (categoriasSelecionadas, generoPreferido = 'any') => {
+            // Filtrar nomes que correspondem ao gênero e têm pelo menos UMA categoria
+            const nomesFiltrados = bancoDeNomes.filter(item => {
+                const generoMatch = generoPreferido === 'any' || item.genero === generoPreferido;
+                const categoriaMatch = categoriasSelecionadas.some(catId => 
+                    item.categorias.includes(catId)
+                );
+                return generoMatch && categoriaMatch;
+            });
+            
+            // Calcular pontuação de relevância para cada nome
+            const nomesComPontuacao = nomesFiltrados.map(item => {
+                // Conta quantas categorias selecionadas o nome possui
+                const pontuacao = categoriasSelecionadas.filter(catId => 
+                    item.categorias.includes(catId)
+                ).length;
+                
+                return {
+                    nome: item.nome,
+                    pontuacao: pontuacao
+                };
+            });
+            
+            // Remover duplicatas (nomes unissex) mantendo a maior pontuação
+            const nomesUnicos = new Map();
+            nomesComPontuacao.forEach(item => {
+                if (!nomesUnicos.has(item.nome) || nomesUnicos.get(item.nome) < item.pontuacao) {
+                    nomesUnicos.set(item.nome, item.pontuacao);
+                }
+            });
+            
+            // Converter Map de volta para array de objetos
+            const nomesUnicosArray = Array.from(nomesUnicos, ([nome, pontuacao]) => ({ nome, pontuacao }));
+            
+            // Ordenar por pontuação (maior primeiro) e depois alfabeticamente
+            nomesUnicosArray.sort((a, b) => {
+                if (b.pontuacao !== a.pontuacao) {
+                    return b.pontuacao - a.pontuacao; // Maior pontuação primeiro
+                }
+                return a.nome.localeCompare(b.nome); // Alfabético como desempate
+            });
+            
+            // Retornar apenas os nomes (sem pontuação)
+            return nomesUnicosArray.map(item => item.nome);
+        };
+
+        function App() {
+            const [tela, setTela] = useState('welcome');
+            const [config, setConfig] = useState({
+                players: 2,
+                player1Name: '',
+                player2Name: '',
+                gender: 'any',
+            });
+            const [categoriasSelecionadas, setCategoriasSelecionadas] = useState({
+                player1: [],
+                player2: [],
+            });
+            const [nomesEscolhidos, setNomesEscolhidos] = useState({
+                player1: [],
+                player2: [],
+            });
+            const [playerAtual, setPlayerAtual] = useState(1);
+            const [batalhaIndex, setBatalhaIndex] = useState(0);
+            const [ratings, setRatings] = useState({});
+            const [paresDeBalhas, setParesDeBalhas] = useState([]);
+            const [parAtual, setParAtual] = useState(null);
+            const [paresJaVistos, setParesJaVistos] = useState(new Set());
+            const [nomeCustomizado, setNomeCustomizado] = useState('');
+            const [timerBatalha, setTimerBatalha] = useState(30);
+
+            // Resetar scroll ao mudar de tela
+            React.useEffect(() => {
+                window.scrollTo({ top: 0, behavior: 'instant' });
+            }, [tela]);
+
+            // Timer global para batalhas (sempre no topo, fora de condicionais)
+            React.useEffect(() => {
+                if (tela !== 'battle' || !parAtual) return; // Só roda durante batalhas
+                
+                // Resetar timer quando muda de batalha
+                setTimerBatalha(30);
+                
+                const interval = setInterval(() => {
+                    setTimerBatalha((prev) => {
+                        if (prev <= 1) {
+                            // Tempo esgotado - registrar empate e avançar
+                            clearInterval(interval);
+                            
+                            // Marcar este par como visto
+                            const [nome1, nome2] = parAtual;
+                            const parKey = [nome1, nome2].sort().join('|');
+                            const novosParesVistos = new Set(paresJaVistos);
+                            novosParesVistos.add(parKey);
+                            setParesJaVistos(novosParesVistos);
+                            
+                            // Calcular Elo para empate (ambos ficam com pontuação similar)
+                            const rating1 = ratings[nome1].rating;
+                            const rating2 = ratings[nome2].rating;
+                            
+                            const newRating1 = calcularElo(rating1, rating2, 0.5); // 0.5 = empate
+                            const newRating2 = calcularElo(rating2, rating1, 0.5);
+                            
+                            setRatings({
+                                ...ratings,
+                                [nome1]: {
+                                    rating: newRating1,
+                                    battles: ratings[nome1].battles + 1,
+                                    wins: ratings[nome1].wins
+                                },
+                                [nome2]: {
+                                    rating: newRating2,
+                                    battles: ratings[nome2].battles + 1,
+                                    wins: ratings[nome2].wins
+                                }
+                            });
+                            
+                            // Avançar para próxima batalha
+                            const proximoIndex = batalhaIndex + 1;
+                            setBatalhaIndex(proximoIndex);
+                            
+                            // Encontrar próximo par não visto
+                            let proximoPar = null;
+                            for (let i = proximoIndex; i < paresDeBalhas.length; i++) {
+                                const par = paresDeBalhas[i];
+                                const parKey = [...par].sort().join('|');
+                                if (!novosParesVistos.has(parKey)) {
+                                    proximoPar = par;
+                                    break;
+                                }
+                            }
+                            
+                            setParAtual(proximoPar);
+                            return 30;
+                        }
+                        return prev - 1;
+                    });
+                }, 1000);
+                
+                return () => clearInterval(interval);
+            }, [tela, batalhaIndex, parAtual]);
+
+            // Funções auxiliares
+            const capitalizarNome = (nome) => {
+                return nome
+                    .trim()
+                    .toLowerCase()
+                    .split(' ')
+                    .map(palavra => palavra.charAt(0).toUpperCase() + palavra.slice(1))
+                    .join(' ');
+            };
+
+            const getNomesDisponiveis = (player) => {
+                const cats = player === 1 ? categoriasSelecionadas.player1 : categoriasSelecionadas.player2;
+                return obterNomesPorCategorias(cats, config.gender);
+            };
+
+            // Função para obter apenas categorias que têm nomes disponíveis para o gênero selecionado
+            const getCategoriasDisponiveis = (generoPreferido = 'any') => {
+                return categorias.filter(categoria => {
+                    // Verifica se existe pelo menos 1 nome nesta categoria para o gênero selecionado
+                    const temNomesDisponiveis = bancoDeNomes.some(item => {
+                        const generoMatch = generoPreferido === 'any' || item.genero === generoPreferido;
+                        const categoriaMatch = item.categorias.includes(categoria.id);
+                        return generoMatch && categoriaMatch;
+                    });
+                    return temNomesDisponiveis;
+                });
+            };
+
+            const calcularElo = (rating1, rating2, resultado) => {
+                const K = 32;
+                const expected = 1 / (1 + Math.pow(10, (rating2 - rating1) / 400));
+                // resultado pode ser: 1 (vitória), 0.5 (empate), 0 (derrota)
+                const score = typeof resultado === 'boolean' ? (resultado ? 1 : 0) : resultado;
+                return rating1 + K * (score - expected);
+            };
+
+            const gerarParesInteligentes = (nomes, maxBatalhas = 50) => {
+                const nomesArray = [...nomes];
+                const pares = [];
+                
+                // Fase 1: Garantir que cada nome apareça pelo menos 4 vezes
+                const aparicoes = {};
+                nomesArray.forEach(nome => aparicoes[nome] = 0);
+                
+                const todosPares = [];
+                for (let i = 0; i < nomesArray.length; i++) {
+                    for (let j = i + 1; j < nomesArray.length; j++) {
+                        todosPares.push([nomesArray[i], nomesArray[j]]);
+                    }
+                }
+                
+                // Embaralhar todos os pares
+                for (let i = todosPares.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [todosPares[i], todosPares[j]] = [todosPares[j], todosPares[i]];
+                }
+                
+                // Adicionar pares até cada nome aparecer pelo menos 4 vezes
+                const minAparicoes = Math.min(4, nomesArray.length - 1);
+                for (const par of todosPares) {
+                    if (pares.length >= maxBatalhas) break;
+                    
+                    const [nome1, nome2] = par;
+                    if (aparicoes[nome1] < minAparicoes || aparicoes[nome2] < minAparicoes) {
+                        pares.push(par);
+                        aparicoes[nome1]++;
+                        aparicoes[nome2]++;
+                    }
+                }
+                
+                // Fase 2: Preencher até maxBatalhas com pares aleatórios restantes
+                for (const par of todosPares) {
+                    if (pares.length >= maxBatalhas) break;
+                    
+                    const parKey = par.sort().join('|');
+                    const paresPush = pares.map(p => p.sort().join('|'));
+                    if (!paresPush.includes(parKey)) {
+                        pares.push(par);
+                    }
+                }
+                
+                return pares;
+            };
+
+            // TELA 1: Welcome
+            if (tela === 'welcome') {
+                return (
+                    <>
+                        <div className="welcome-container">
+                            <div className="welcome-content" style={{paddingTop: '40px', paddingLeft: '20px', paddingRight: '20px'}}>
+                                <div className="header">
+                                    <div className="icon-circle">❤️</div>
+                                    <h1>Meu Nome É…</h1>
+                                    <p className="subtitle">Escolham juntos o nome perfeito para o bebê</p>
+                                </div>
+
+                                <div className="section">
+                                    <div className="section-title">Quantos participantes?</div>
+                                    <div className="button-group">
+                                        <button 
+                                            className={`bubble ${config.players === 2 ? 'selected' : ''}`}
+                                            onClick={() => setConfig({...config, players: 2})}
+                                        >
+                                            👥 Casal
+                                        </button>
+                                        <button 
+                                            className={`bubble ${config.players === 1 ? 'selected' : ''}`}
+                                            onClick={() => setConfig({...config, players: 1})}
+                                        >
+                                            👤 Solo
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="section">
+                                    <div className="section-title">
+                                        {config.players === 1 ? 'Seu nome' : 'Nomes dos participantes'}
+                                    </div>
+                                    
+                                    <div className="input-group">
+                                        <label className="input-label">
+                                            {config.players === 1 ? 'Nome' : 'Participante 1'}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={config.player1Name}
+                                            onChange={(e) => setConfig({...config, player1Name: e.target.value})}
+                                            placeholder="Digite aqui..."
+                                        />
+                                    </div>
+
+                                    {config.players === 2 && (
+                                        <div className="input-group">
+                                            <label className="input-label">Participante 2</label>
+                                            <input
+                                                type="text"
+                                                value={config.player2Name}
+                                                onChange={(e) => setConfig({...config, player2Name: e.target.value})}
+                                                placeholder="Digite aqui..."
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="section">
+                                    <div className="section-title">Gênero dos nomes</div>
+                                    <div className="button-group">
+                                        <button 
+                                            className={`bubble ${config.gender === 'any' ? 'selected' : ''}`}
+                                            onClick={() => setConfig({...config, gender: 'any'})}
+                                        >
+                                            ✨ Surpresa
+                                        </button>
+                                        <button 
+                                            className={`bubble ${config.gender === 'girl' ? 'selected' : ''}`}
+                                            onClick={() => setConfig({...config, gender: 'girl'})}
+                                        >
+                                            💗 Menina
+                                        </button>
+                                        <button 
+                                            className={`bubble ${config.gender === 'boy' ? 'selected' : ''}`}
+                                            onClick={() => setConfig({...config, gender: 'boy'})}
+                                        >
+                                            💙 Menino
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="fixed-button-container">
+                            <div className="fixed-button-inner">
+                                <button 
+                                    className="btn-primary"
+                                    onClick={() => {
+                                        // Capitalizar nomes dos participantes
+                                        setConfig({
+                                            ...config,
+                                            player1Name: capitalizarNome(config.player1Name),
+                                            player2Name: config.players === 2 ? capitalizarNome(config.player2Name) : config.player2Name
+                                        });
+                                        setTela(config.players === 2 ? 'onboarding' : 'briefing');
+                                        setPlayerAtual(1);
+                                    }}
+                                    disabled={!config.player1Name.trim() || (config.players === 2 && !config.player2Name.trim())}
+                                >
+                                    ✨ Começar
+                                </button>
+                            </div>
+                        </div>
+                    </>
+                );
+            }
+
+            // TELA 2: Onboarding (apenas para modo Casal)
+            if (tela === 'onboarding') {
+                return (
+                    <div className="container">
+                        <div className="header">
+                            <div className="icon-circle">📱</div>
+                            <h1>Como funciona</h1>
+                            <p className="subtitle">Leiam juntos antes de começar</p>
+                        </div>
+
+                        <div className="content">
+                            <div className="scrollable">
+                                <div style={{background: 'white', borderRadius: 16, padding: 24, marginBottom: 16, border: '2px solid #e7e5e4'}}>
+                                    <div style={{fontSize: 32, marginBottom: 12}}>🎮</div>
+                                    <h3 style={{fontSize: 18, fontWeight: 'bold', marginBottom: 8, color: '#1c1917'}}>
+                                        O jogo tem 3 etapas
+                                    </h3>
+                                    <p style={{fontSize: 16, color: '#78716c', lineHeight: 1.6}}>
+                                        Cada um vai escolher <strong>categorias</strong>, depois <strong>nomes</strong>, e por fim fazer uma <strong>batalha</strong> para ranquear.
+                                    </p>
+                                </div>
+
+                                <div style={{background: 'white', borderRadius: 16, padding: 24, marginBottom: 16, border: '2px solid #e7e5e4'}}>
+                                    <div style={{fontSize: 32, marginBottom: 12}}>🔄</div>
+                                    <h3 style={{fontSize: 18, fontWeight: 'bold', marginBottom: 8, color: '#1c1917'}}>
+                                        Troca de participante
+                                    </h3>
+                                    <p style={{fontSize: 16, color: '#78716c', lineHeight: 1.6}}>
+                                        O app vai avisar quando é hora de <strong>trocar de vez</strong> com o outro participante.
+                                    </p>
+                                </div>
+
+                                <div style={{background: '#fef3c7', borderRadius: 16, padding: 24, marginBottom: 16, border: '2px solid #fbbf24'}}>
+                                    <div style={{fontSize: 32, marginBottom: 12}}>🙈</div>
+                                    <h3 style={{fontSize: 18, fontWeight: 'bold', marginBottom: 8, color: '#1c1917'}}>
+                                        Não espiem! 🤫
+                                    </h3>
+                                    <p style={{fontSize: 16, color: '#78716c', lineHeight: 1.6}}>
+                                        É <strong>muito importante</strong> que cada um faça suas escolhas <strong>sem ver</strong> as do outro. A graça está na <strong>surpresa</strong> do resultado final!
+                                    </p>
+                                </div>
+
+                                <div style={{background: 'white', borderRadius: 16, padding: 24, border: '2px solid #e7e5e4'}}>
+                                    <div style={{fontSize: 32, marginBottom: 12}}>✨</div>
+                                    <h3 style={{fontSize: 18, fontWeight: 'bold', marginBottom: 8, color: '#1c1917'}}>
+                                        Ao final
+                                    </h3>
+                                    <p style={{fontSize: 16, color: '#78716c', lineHeight: 1.6}}>
+                                        Vocês vão descobrir juntos os nomes que <strong>ambos gostaram</strong> mais!
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="fixed-button-container">
+                            <div className="fixed-button-inner">
+                                <button 
+                                    className="btn-primary"
+                                    onClick={() => {
+                                        setTela('briefing');
+                                    }}
+                                >
+                                    🎯 Entendido, vamos começar!
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // TELA 3: Briefing (Categorias)
+            if (tela === 'briefing') {
+                const playerKey = playerAtual === 1 ? 'player1' : 'player2';
+                const selectedCats = categoriasSelecionadas[playerKey];
+                const playerName = playerAtual === 1 ? config.player1Name : config.player2Name;
+                const categoriasDisponiveis = getCategoriasDisponiveis(config.gender);
+
+                return (
+                    <div className="container">
+                        <div className="header">
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16}}>
+                                <span style={{color: '#78716c', fontSize: 14}}>Etapa 1 de 3</span>
+                                {config.players === 2 && <span className="badge">{playerName}</span>}
+                            </div>
+                            <h1>Olá, {playerName}! 👋</h1>
+                            <p className="subtitle">Escolha os estilos que você gosta</p>
+                        </div>
+
+                        <div className="content">
+                            <div className="scrollable">
+                                <div className="button-group">
+                                    {categoriasDisponiveis.map(cat => (
+                                        <button
+                                            key={cat.id}
+                                            className={`bubble ${selectedCats.includes(cat.id) ? 'selected' : ''}`}
+                                            onClick={() => {
+                                                const newCats = selectedCats.includes(cat.id)
+                                                    ? selectedCats.filter(c => c !== cat.id)
+                                                    : [...selectedCats, cat.id];
+                                                setCategoriasSelecionadas({
+                                                    ...categoriasSelecionadas,
+                                                    [playerKey]: newCats
+                                                });
+                                            }}
+                                        >
+                                            {cat.emoji} {cat.nome}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="fixed-button-container">
+                            <div className="fixed-button-inner">
+                                <button 
+                                    className="btn-primary"
+                                    onClick={() => {
+                                        setTela('names');
+                                    }}
+                                    disabled={selectedCats.length === 0}
+                                >
+                                    ➡️ Continuar ({selectedCats.length})
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // TELA 4: Seleção de Nomes
+            if (tela === 'names') {
+                const playerKey = playerAtual === 1 ? 'player1' : 'player2';
+                const selectedNames = nomesEscolhidos[playerKey];
+                const playerName = playerAtual === 1 ? config.player1Name : config.player2Name;
+                const nomesDisponiveis = getNomesDisponiveis(playerAtual);
+
+                return (
+                    <div className="container">
+                        <div className="header">
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16}}>
+                                <span style={{color: '#78716c', fontSize: 14}}>Etapa 2 de 3</span>
+                                {config.players === 2 && <span className="badge">{playerName}</span>}
+                            </div>
+                            <h1>Escolha os nomes</h1>
+                            <p className="subtitle">{playerName}, selecione os que você gosta</p>
+                        </div>
+
+                        <div className="content">
+                            <div className="scrollable">
+                                <div className="button-group">
+                                    {nomesDisponiveis.map(nome => (
+                                        <button
+                                            key={nome}
+                                            className={`bubble ${selectedNames.includes(nome) ? 'selected' : ''}`}
+                                            onClick={() => {
+                                                const newNames = selectedNames.includes(nome)
+                                                    ? selectedNames.filter(n => n !== nome)
+                                                    : [...selectedNames, nome];
+                                                setNomesEscolhidos({
+                                                    ...nomesEscolhidos,
+                                                    [playerKey]: newNames
+                                                });
+                                            }}
+                                        >
+                                            {nome}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="fixed-button-container">
+                            <div className="fixed-button-inner">
+                                <button 
+                                    className="btn-primary"
+                                    onClick={() => {
+                                        setTela('review');
+                                    }}
+                                    disabled={selectedNames.length === 0}
+                                >
+                                    ➡️ Continuar ({selectedNames.length})
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // TELA 5: Revisão
+            if (tela === 'review') {
+                const playerKey = playerAtual === 1 ? 'player1' : 'player2';
+                const selectedNames = nomesEscolhidos[playerKey];
+                const playerName = playerAtual === 1 ? config.player1Name : config.player2Name;
+
+                const adicionarNomeCustomizado = () => {
+                    const nomeTrimmed = nomeCustomizado.trim();
+                    if (!nomeTrimmed) {
+                        alert('Por favor, digite um nome válido!');
+                        return;
+                    }
+                    
+                    // Capitalizar primeira letra de cada palavra (inclui nomes compostos)
+                    const nomeCapitalizado = capitalizarNome(nomeTrimmed);
+                    
+                    // Verificar se já existe na lista (case-insensitive)
+                    if (selectedNames.some(n => n.toLowerCase() === nomeCapitalizado.toLowerCase())) {
+                        alert('Este nome já está na sua lista!');
+                        return;
+                    }
+                    
+                    setNomesEscolhidos({
+                        ...nomesEscolhidos,
+                        [playerKey]: [...selectedNames, nomeCapitalizado]
+                    });
+                    setNomeCustomizado('');
+                };
+
+                return (
+                    <div className="container">
+                        <div className="header">
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16}}>
+                                <span style={{color: '#78716c', fontSize: 14}}>Revisão</span>
+                                {config.players === 2 && <span className="badge">{playerName}</span>}
+                            </div>
+                            <h1>Sua lista, {playerName}</h1>
+                            <p className="subtitle">Revise seus nomes escolhidos</p>
+                        </div>
+
+                        <div className="content">
+                            {/* Formulário de Adicionar Nome - FORA do scrollable */}
+                            <div style={{
+                                background: '#f5f5f4', 
+                                border: '2px solid #e7e5e4', 
+                                borderRadius: 16, 
+                                padding: 20, 
+                                marginBottom: 20
+                            }}>
+                                <label style={{
+                                    display: 'block', 
+                                    fontSize: 15, 
+                                    fontWeight: 600, 
+                                    color: '#1c1917', 
+                                    marginBottom: 12
+                                }}>
+                                    ✍️ Adicionar nome manualmente
+                                </label>
+                                <div style={{
+                                    display: 'flex', 
+                                    gap: 8, 
+                                    alignItems: 'stretch'
+                                }}>
+                                    <input
+                                        type="text"
+                                        placeholder="Digite um nome..."
+                                        value={nomeCustomizado}
+                                        onChange={(e) => setNomeCustomizado(e.target.value)}
+                                        onKeyPress={(e) => {
+                                            if (e.key === 'Enter') {
+                                                adicionarNomeCustomizado();
+                                            }
+                                        }}
+                                        style={{
+                                            flex: 1,
+                                            padding: '12px 16px',
+                                            fontSize: 16,
+                                            fontFamily: 'inherit',
+                                            background: 'white',
+                                            border: '2px solid #e7e5e4',
+                                            borderRadius: 8
+                                        }}
+                                    />
+                                    <button
+                                        onClick={adicionarNomeCustomizado}
+                                        className="btn-add-custom"
+                                    >
+                                        ➕ Adicionar
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Lista de Nomes - DENTRO do scrollable */}
+                            <h3 style={{
+                                fontSize: 16, 
+                                fontWeight: 600, 
+                                color: '#1c1917', 
+                                marginBottom: 12
+                            }}>
+                                Seus nomes selecionados ({selectedNames.length})
+                            </h3>
+                            
+                            <div className="scrollable">
+                                {selectedNames.map(nome => (
+                                    <div key={nome} className="name-item">
+                                        <span style={{fontSize: 18, fontWeight: 600}}>{nome}</span>
+                                        <button
+                                            className="btn-remove"
+                                            onClick={() => {
+                                                setNomesEscolhidos({
+                                                    ...nomesEscolhidos,
+                                                    [playerKey]: selectedNames.filter(n => n !== nome)
+                                                });
+                                            }}
+                                        >
+                                            🗑️ Remover
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="fixed-button-container">
+                            <div className="fixed-button-inner">
+                                <button 
+                                    className="btn-primary"
+                                    onClick={() => {
+                                        if (config.players === 2 && playerAtual === 1) {
+                                            // Player 1 terminou, agora é a vez do Player 2
+                                            setPlayerAtual(2);
+                                            setTela('briefing');
+                                        } else {
+                                            // Inicializar ratings com TODOS os nomes
+                                            const allNames = [...new Set([...nomesEscolhidos.player1, ...nomesEscolhidos.player2])];
+                                            const initialRatings = {};
+                                            allNames.forEach(nome => {
+                                                initialRatings[nome] = { rating: 1500, battles: 0, wins: 0 };
+                                            });
+                                            setRatings(initialRatings);
+                                            
+                                            // Gerar pares inteligentes (máximo 50 batalhas por jogador)
+                                            const paresP1 = gerarParesInteligentes(allNames, 50);
+                                            setParesDeBalhas(paresP1);
+                                            setParAtual(paresP1[0]);
+                                            setParesJaVistos(new Set()); // Resetar pares vistos
+                                            
+                                            setTela('battle');
+                                            setPlayerAtual(1);
+                                            setBatalhaIndex(0);
+                                        }
+                                    }}
+                                    disabled={selectedNames.length < 2}
+                                >
+                                    {config.players === 2 && playerAtual === 1 ? '🔄 Trocar de participante' : '⚔️ Ir para batalha'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // TELA 6: Batalha
+            if (tela === 'battle') {
+                const playerKey = playerAtual === 1 ? 'player1' : 'player2';
+                const playerNames = nomesEscolhidos[playerKey];
+                const totalBattles = paresDeBalhas.length;
+                
+                if (batalhaIndex >= totalBattles || !parAtual) {
+                    return (
+                        <div className="container">
+                            <div className="header">
+                                <div className="icon-circle">🏆</div>
+                                <h1>Batalha concluída!</h1>
+                                <p className="subtitle">
+                                    {playerAtual === 1 ? config.player1Name : config.player2Name}, você completou {batalhaIndex} batalhas
+                                </p>
+                            </div>
+
+                            <div className="fixed-button-container">
+                                <div className="fixed-button-inner">
+                                    <button 
+                                        className="btn-primary"
+                                        onClick={() => {
+                                            if (config.players === 2 && playerAtual === 1) {
+                                                // Gerar pares inteligentes para P2 (máximo 50 batalhas)
+                                                const allNames = [...new Set([...nomesEscolhidos.player1, ...nomesEscolhidos.player2])];
+                                                const paresP2 = gerarParesInteligentes(allNames, 50);
+                                                setParesDeBalhas(paresP2);
+                                                setParAtual(paresP2[0]);
+                                                setParesJaVistos(new Set()); // Resetar pares vistos para P2
+                                                setPlayerAtual(2);
+                                                setBatalhaIndex(0);
+                                            } else {
+                                                setTela('results');
+                                            }
+                                        }}
+                                    >
+                                        {config.players === 2 && playerAtual === 1 ? '🔄 Trocar participante' : '🏆 Ver resultados'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+
+                const [nome1, nome2] = parAtual;
+
+                const handleVoto = (vencedor, perdedor) => {
+                    // Resetar timer imediatamente
+                    setTimerBatalha(30);
+                    
+                    // Marcar este par como visto (ordenar para garantir consistência)
+                    const parKey = [nome1, nome2].sort().join('|');
+                    const novosParesVistos = new Set(paresJaVistos);
+                    novosParesVistos.add(parKey);
+                    setParesJaVistos(novosParesVistos);
+                    
+                    console.log('Par votado:', parKey);
+                    console.log('Total de pares vistos:', novosParesVistos.size);
+                    
+                    const rating1 = ratings[vencedor].rating;
+                    const rating2 = ratings[perdedor].rating;
+                    
+                    const newRating1 = calcularElo(rating1, rating2, true);
+                    const newRating2 = calcularElo(rating2, rating1, false);
+                    
+                    setRatings({
+                        ...ratings,
+                        [vencedor]: {
+                            rating: newRating1,
+                            battles: ratings[vencedor].battles + 1,
+                            wins: ratings[vencedor].wins + 1
+                        },
+                        [perdedor]: {
+                            rating: newRating2,
+                            battles: ratings[perdedor].battles + 1,
+                            wins: ratings[perdedor].wins
+                        }
+                    });
+                    
+                    const proximoIndex = batalhaIndex + 1;
+                    setBatalhaIndex(proximoIndex);
+                    
+                    // Encontrar próximo par que ainda não foi visto
+                    let proximoPar = null;
+                    for (let i = proximoIndex; i < paresDeBalhas.length; i++) {
+                        const par = paresDeBalhas[i];
+                        const parKey = [...par].sort().join('|'); // Criar cópia antes de ordenar
+                        if (!novosParesVistos.has(parKey)) {
+                            proximoPar = par;
+                            break;
+                        }
+                    }
+                    
+                    setParAtual(proximoPar);
+                };
+
+                return (
+                    <div className="battle-screen">
+                        <div className="battle-header">
+                            <div style={{fontSize: 14, color: '#78716c', marginBottom: 8}}>
+                                Batalha {batalhaIndex + 1} de {totalBattles}
+                            </div>
+                            <h2 style={{fontSize: 20, color: '#1c1917'}}>
+                                {playerAtual === 1 ? config.player1Name : config.player2Name}
+                            </h2>
+                            <p style={{fontSize: 14, color: '#78716c', marginTop: 4}}>
+                                Qual nome você prefere?
+                            </p>
+                        </div>
+                        
+                        <div className="battle-area" style={{position: 'relative'}}>
+                            <div className="battle-option" onClick={() => handleVoto(nome1, nome2)}>
+                                <div className="battle-name">{nome1}</div>
+                            </div>
+                            
+                            {/* Barra de timer - diminui de ambos os lados em direção ao centro */}
+                            <div 
+                                className="battle-timer-divider"
+                                style={{
+                                    clipPath: (() => {
+                                        const percentual = (timerBatalha / 30) * 100;
+                                        const corte = (100 - percentual) / 2;
+                                        
+                                        // Desktop: vertical (corta de cima e de baixo)
+                                        if (window.innerWidth > 767) {
+                                            return `inset(${corte}% 0 ${corte}% 0)`;
+                                        }
+                                        // Mobile: horizontal (corta da esquerda e da direita)
+                                        return `inset(0 ${corte}% 0 ${corte}%)`;
+                                    })(),
+                                    background: timerBatalha <= 10 ? '#ef4444' : timerBatalha <= 30 ? '#f59e0b' : '#1c1917',
+                                    transition: timerBatalha === 30 ? 'none' : 'clip-path 1s linear'
+                                }}
+                            ></div>
+                            
+                            <div className="battle-vs">⚡</div>
+                            <div className="battle-option" onClick={() => handleVoto(nome2, nome1)}>
+                                <div className="battle-name">{nome2}</div>
+                            </div>
+                        </div>
+
+                        <div className="progress-bar">
+                            <div className="progress-fill" style={{width: `${(batalhaIndex / totalBattles) * 100}%`}}></div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // TELA 7: Resultados
+            if (tela === 'results') {
+                // Função para determinar a origem do nome
+                const getOrigem = (nome) => {
+                    const emP1 = nomesEscolhidos.player1.includes(nome);
+                    const emP2 = nomesEscolhidos.player2.includes(nome);
+                    
+                    if (config.players === 1) {
+                        return null; // Modo solo não precisa de badge
+                    }
+                    
+                    if (emP1 && emP2) {
+                        return { tipo: 'ambos', label: 'Ambos' };
+                    } else if (emP1) {
+                        return { tipo: 'player1', label: config.player1Name };
+                    } else if (emP2) {
+                        return { tipo: 'player2', label: config.player2Name };
+                    }
+                    return null;
+                };
+                
+                const resultados = Object.keys(ratings)
+                    .map(nome => ({
+                        nome,
+                        origem: getOrigem(nome),
+                        ...ratings[nome]
+                    }))
+                    .sort((a, b) => b.rating - a.rating);
+
+                const top3 = resultados.slice(0, 3);
+
+                return (
+                    <div className="container">
+                        <div className="header">
+                            <div className="icon-circle">🏆</div>
+                            <p className="subtitle" style={{marginBottom: 8}}>
+                                {config.players === 2 ? 'Vocês escolheram' : 'Sua escolha final'}
+                            </p>
+                            <h1 style={{fontSize: 36}}>{top3[0]?.nome}</h1>
+                        </div>
+
+                        <div className="content">
+                            <div className="scrollable">
+                                {resultados.length >= 3 && (
+                                    <div className="podium">
+                                        <div className="podium-2">
+                                            <div className="medal">🥈</div>
+                                            <div style={{fontSize: 16, fontWeight: 'bold', marginTop: 8}}>{top3[1].nome}</div>
+                                            <div style={{fontSize: 12, color: '#78716c', marginTop: 4}}>2º lugar</div>
+                                        </div>
+                                        <div className="podium-1">
+                                            <div className="medal">🥇</div>
+                                            <div style={{fontSize: 18, fontWeight: 'bold', marginTop: 8}}>{top3[0].nome}</div>
+                                            <div style={{fontSize: 12, color: '#78716c', marginTop: 4}}>1º lugar</div>
+                                        </div>
+                                        <div className="podium-3">
+                                            <div className="medal">🥉</div>
+                                            <div style={{fontSize: 14, fontWeight: 'bold', marginTop: 8}}>{top3[2].nome}</div>
+                                            <div style={{fontSize: 12, color: '#78716c', marginTop: 4}}>3º lugar</div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <h3 style={{fontSize: 20, fontWeight: 'bold', marginBottom: 16}}>Ranking completo</h3>
+                                
+                                {resultados.map((result, index) => (
+                                    <div key={result.nome} className="result-item">
+                                        {index < 3 ? (
+                                            <div className="medal">
+                                                {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                                            </div>
+                                        ) : (
+                                            <div className="result-rank">{index + 1}º</div>
+                                        )}
+                                        <div className="result-info">
+                                            <div style={{display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4}}>
+                                                <div className="result-name">{result.nome}</div>
+                                                {result.origem && (() => {
+                                                    let bgColor, textColor;
+                                                    
+                                                    if (result.origem.tipo === 'ambos') {
+                                                        // Verde para ambos
+                                                        bgColor = '#dcfce7';
+                                                        textColor = '#166534';
+                                                    } else if (result.origem.tipo === 'player1') {
+                                                        // Azul para Player 1
+                                                        bgColor = '#dbeafe';
+                                                        textColor = '#1e40af';
+                                                    } else if (result.origem.tipo === 'player2') {
+                                                        // Roxo para Player 2
+                                                        bgColor = '#e9d5ff';
+                                                        textColor = '#7e22ce';
+                                                    }
+                                                    
+                                                    return (
+                                                        <span style={{
+                                                            background: bgColor,
+                                                            color: textColor,
+                                                            padding: '2px 8px',
+                                                            borderRadius: 6,
+                                                            fontSize: 11,
+                                                            fontWeight: 600,
+                                                            whiteSpace: 'nowrap'
+                                                        }}>
+                                                            {result.origem.label}
+                                                        </span>
+                                                    );
+                                                })()}
+                                            </div>
+                                            <div className="result-score">
+                                                {Math.round(result.rating)} pontos
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="fixed-button-container">
+                            <div className="fixed-button-inner">
+                                <button 
+                                    className="btn-primary"
+                                    onClick={() => window.location.reload()}
+                                >
+                                    🔄 Jogar de novo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
+
