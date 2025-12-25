@@ -897,6 +897,28 @@
                 return () => clearInterval(interval);
             }, [tela, batalhaIndex, parAtual]);
 
+            // Analytics: Rastrear resultado final
+            React.useEffect(() => {
+                if (tela === 'results' && Object.keys(ratings).length > 0) {
+                    const resultados = Object.keys(ratings)
+                        .map(nome => ({ nome, ...ratings[nome] }))
+                        .sort((a, b) => b.rating - a.rating);
+                    
+                    const top3 = resultados.slice(0, 3);
+                    
+                    if (top3.length > 0) {
+                        trackEvent('game_completed', {
+                            game_mode: config.players === 2 ? 'casal' : 'solo',
+                            gender_choice: config.gender === 'boy' ? 'menino' : config.gender === 'girl' ? 'menina' : 'surpresa',
+                            winner: top3[0]?.nome,
+                            second_place: top3[1]?.nome,
+                            third_place: top3[2]?.nome,
+                            total_names: resultados.length
+                        });
+                    }
+                }
+            }, [tela]); // Dispara quando tela muda para 'results'
+
             // Funções auxiliares
             const capitalizarNome = (nome) => {
                 return nome
@@ -1633,20 +1655,6 @@
                     .sort((a, b) => b.rating - a.rating);
 
                 const top3 = resultados.slice(0, 3);
-                
-                // Analytics: Rastrear resultado final (só uma vez)
-                React.useEffect(() => {
-                    if (top3.length > 0) {
-                        trackEvent('game_completed', {
-                            game_mode: config.players === 2 ? 'casal' : 'solo',
-                            gender_choice: config.gender === 'boy' ? 'menino' : config.gender === 'girl' ? 'menina' : 'surpresa',
-                            winner: top3[0]?.nome,
-                            second_place: top3[1]?.nome,
-                            third_place: top3[2]?.nome,
-                            total_names: resultados.length
-                        });
-                    }
-                }, []); // Array vazio = executa só uma vez
 
                 return (
                     <div className="container">
