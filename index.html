@@ -4,6 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🍼 Meu Nome É… - App Completo</title>
+    
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX'); // SUBSTITUIR pelo seu Measurement ID
+        
+        // Função helper para trackear eventos customizados
+        function trackEvent(eventName, eventParams = {}) {
+            if (typeof gtag !== 'undefined') {
+                gtag('event', eventName, eventParams);
+                console.log('Analytics Event:', eventName, eventParams);
+            }
+        }
+    </script>
+    
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -1034,6 +1052,13 @@
                                             player1Name: capitalizarNome(config.player1Name),
                                             player2Name: config.players === 2 ? capitalizarNome(config.player2Name) : config.player2Name
                                         });
+                                        
+                                        // Analytics: Rastrear início do jogo
+                                        trackEvent('game_start', {
+                                            game_mode: config.players === 2 ? 'casal' : 'solo',
+                                            gender_choice: config.gender === 'boy' ? 'menino' : config.gender === 'girl' ? 'menina' : 'surpresa'
+                                        });
+                                        
                                         setTela(config.players === 2 ? 'onboarding' : 'briefing');
                                         setPlayerAtual(1);
                                     }}
@@ -1256,6 +1281,13 @@
                         alert('Este nome já está na sua lista!');
                         return;
                     }
+                    
+                    // Analytics: Rastrear nome adicionado manualmente
+                    trackEvent('custom_name_added', {
+                        name: nomeCapitalizado,
+                        player: playerAtual,
+                        gender: config.gender
+                    });
                     
                     setNomesEscolhidos({
                         ...nomesEscolhidos,
@@ -1575,6 +1607,20 @@
                     .sort((a, b) => b.rating - a.rating);
 
                 const top3 = resultados.slice(0, 3);
+                
+                // Analytics: Rastrear resultado final (só uma vez)
+                React.useEffect(() => {
+                    if (top3.length > 0) {
+                        trackEvent('game_completed', {
+                            game_mode: config.players === 2 ? 'casal' : 'solo',
+                            gender_choice: config.gender === 'boy' ? 'menino' : config.gender === 'girl' ? 'menina' : 'surpresa',
+                            winner: top3[0]?.nome,
+                            second_place: top3[1]?.nome,
+                            third_place: top3[2]?.nome,
+                            total_names: resultados.length
+                        });
+                    }
+                }, []); // Array vazio = executa só uma vez
 
                 return (
                     <div className="container">
